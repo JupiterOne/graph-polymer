@@ -21,7 +21,7 @@ describe('#validateInvocation', () => {
     });
 
     await expect(validateInvocation(executionContext)).rejects.toThrow(
-      'Config requires all of {clientId, clientSecret}',
+      'Config requires all of {apiToken, baseUrl}',
     );
   });
 
@@ -54,7 +54,7 @@ describe('#validateInvocation', () => {
      * error messaging is expected and clear to end-users
      */
     describe('invalid user credentials', () => {
-      test.skip('should throw if clientId is invalid', async () => {
+      test.skip('should throw if api token is invalid', async () => {
         recording = setupProjectRecording({
           directory: __dirname,
           name: 'client-id-auth-error',
@@ -67,8 +67,8 @@ describe('#validateInvocation', () => {
 
         const executionContext = createMockExecutionContext({
           instanceConfig: {
-            clientId: 'INVALID',
-            clientSecret: integrationConfig.clientSecret,
+            apiToken: 'INVALID',
+            baseUrl: integrationConfig.baseUrl,
           },
         });
 
@@ -79,10 +79,10 @@ describe('#validateInvocation', () => {
         );
       });
 
-      test.skip('should throw if clientSecret is invalid', async () => {
+      test.skip('should throw if base URL is invalid', async () => {
         recording = setupProjectRecording({
           directory: __dirname,
-          name: 'client-secret-auth-error',
+          name: 'api-token-auth-error',
           options: {
             recordFailedRequests: true,
           },
@@ -90,8 +90,8 @@ describe('#validateInvocation', () => {
 
         const executionContext = createMockExecutionContext({
           instanceConfig: {
-            clientId: integrationConfig.clientSecret,
-            clientSecret: 'INVALID',
+            apiToken: integrationConfig.baseUrl,
+            baseUrl: 'INVALID',
           },
         });
 
