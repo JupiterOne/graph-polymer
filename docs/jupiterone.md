@@ -1,4 +1,4 @@
-# Polymer Integration with JupiterOne
+# Polymer
 
 ## Integration Benefits
 
