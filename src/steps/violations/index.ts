@@ -11,7 +11,6 @@ import { Entities, Steps, Relationships } from '../constants';
 import {
   createViolationEntity,
   generateRuleKey,
-  generateViolationKey,
   createRuleEntity,
   createAccountRuleRelationship,
   createRuleViolationRelationship,
@@ -27,34 +26,26 @@ export async function fetchViolations({
   const accountEntity = (await jobState.getData(ACCOUNT_ENTITY_KEY)) as Entity;
 
   await apiClient.iterateViolations(async (violation) => {
-    let violationEntity = await jobState.findEntity(
-      generateViolationKey(violation.id),
+    const violationEntity = await jobState.addEntity(
+      createViolationEntity(violation),
     );
-    if (!violationEntity) {
-      violationEntity = await jobState.addEntity(
-        createViolationEntity(violation),
-      );
 
-      for (const rule of violation.rules) {
-        let ruleEntity = await jobState.findEntity(generateRuleKey(rule.id));
-        if (!ruleEntity) {
-          ruleEntity = await jobState.addEntity(createRuleEntity(rule));
-          await jobState.addRelationship(
-            createAccountRuleRelationship(accountEntity, ruleEntity),
-          );
-        }
+    for (const rule of violation.rules) {
+      let ruleEntity = await jobState.findEntity(generateRuleKey(rule.id));
+      if (!ruleEntity) {
+        ruleEntity = await jobState.addEntity(createRuleEntity(rule));
         await jobState.addRelationship(
-          createRuleViolationRelationship(
-            ruleEntity,
-            violationEntity,
-            Number(rule.count),
-          ),
+          createAccountRuleRelationship(accountEntity, ruleEntity),
         );
       }
+      await jobState.addRelationship(
+        createRuleViolationRelationship(
+          ruleEntity,
+          violationEntity,
+          Number(rule.count),
+        ),
+      );
     }
-    // else {
-    //   logger.error(violation, `Received duplicate violation entity key`)
-    // }
   });
 }
 
