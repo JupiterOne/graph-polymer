@@ -88,7 +88,6 @@ export class APIClient {
       const response = await this.executeAPIRequestWithRetries<PolymerResponse>(
         queryUrl,
       );
-      // this.logger.info({ response }, `Full response`);
       for (const violation of response.items) {
         await iteratee(violation);
       }
