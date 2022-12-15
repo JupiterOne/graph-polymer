@@ -1,9 +1,7 @@
-import { createMockStepExecutionContext } from '@jupiterone/integration-sdk-testing';
-import { fetchViolations } from '.';
+import { executeStepWithDependencies } from '@jupiterone/integration-sdk-testing';
+import { buildStepTestConfigForStep } from '../../../test/config';
 import { Recording, setupProjectRecording } from '../../../test/recording';
-import { IntegrationConfig } from '../../config';
-import { fetchAccountDetails } from '../account';
-import { integrationConfig } from '../../../test/config';
+import { Steps } from '../constants';
 
 // See test/README.md for details
 let recording: Recording;
@@ -17,19 +15,7 @@ test('fetch-violations', async () => {
     name: 'fetch-violations',
   });
 
-  const context = createMockStepExecutionContext<IntegrationConfig>({
-    instanceConfig: integrationConfig,
-  });
-
-  await fetchAccountDetails(context);
-  await fetchViolations(context);
-
-  // Review snapshot, failure is a regression
-  expect({
-    numCollectedEntities: context.jobState.collectedEntities.length,
-    numCollectedRelationships: context.jobState.collectedRelationships.length,
-    collectedEntities: context.jobState.collectedEntities,
-    collectedRelationships: context.jobState.collectedRelationships,
-    encounteredTypes: context.jobState.encounteredTypes,
-  }).toMatchSnapshot();
+  const stepConfig = buildStepTestConfigForStep(Steps.VIOLATIONS);
+  const stepResult = await executeStepWithDependencies(stepConfig);
+  expect(stepResult).toMatchStepMetadata(stepConfig);
 });

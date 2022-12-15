@@ -28,10 +28,8 @@ describe('#validateInvocation', () => {
 
   /**
    * Testing a successful authorization can be done with recordings
-   * This is difficult, since our organization will change between running
-   * with and without .env data.
    */
-  test.skip('successfully validates invocation', async () => {
+  test('successfully validates invocation', async () => {
     recording = setupProjectRecording({
       directory: __dirname,
       name: 'validate-invocation',
