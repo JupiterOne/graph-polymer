@@ -59,6 +59,8 @@ export function createViolationEntity(violation: PolymerItem): Entity {
         severity: 'unknown', // TODO (adam-in-ict) If we begin getting a category and severity, update these
         numericSeverity: 0,
         open: true,
+        fileId: violation.file?.id,
+        fileName: violation.file?.name,
       },
     },
   });
