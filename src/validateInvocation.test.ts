@@ -1,3 +1,4 @@
+import { IntegrationProviderAuthenticationError } from '@jupiterone/integration-sdk-core';
 import {
   createMockExecutionContext,
   Recording,
@@ -21,12 +22,14 @@ describe('#validateInvocation', () => {
     });
 
     await expect(validateInvocation(executionContext)).rejects.toThrow(
-      'Config requires all of {apiToken, baseUrl}',
+      'Config requires all of {apiToken, organization}',
     );
   });
 
   /**
    * Testing a successful authorization can be done with recordings
+   * This is difficult, since our organization will change between running
+   * with and without .env data.
    */
   test.skip('successfully validates invocation', async () => {
     recording = setupProjectRecording({
@@ -43,10 +46,6 @@ describe('#validateInvocation', () => {
     await expect(validateInvocation(executionContext)).resolves.toBeUndefined();
   });
 
-  /* Adding `describe` blocks segments the tests into logical sections
-   * and makes the output of `yarn test --verbose` provide meaningful
-   * to project information to future maintainers.
-   */
   describe('fails validating invocation', () => {
     /**
      * Testing failing authorizations can be done with recordings as well.
@@ -54,7 +53,7 @@ describe('#validateInvocation', () => {
      * error messaging is expected and clear to end-users
      */
     describe('invalid user credentials', () => {
-      test.skip('should throw if api token is invalid', async () => {
+      test('should throw if login is invalid', async () => {
         recording = setupProjectRecording({
           directory: __dirname,
           name: 'client-id-auth-error',
@@ -68,35 +67,14 @@ describe('#validateInvocation', () => {
         const executionContext = createMockExecutionContext({
           instanceConfig: {
             apiToken: 'INVALID',
-            baseUrl: integrationConfig.baseUrl,
+            organization: integrationConfig.organization,
           },
         });
 
         // tests validate that invalid configurations throw an error
         // with an appropriate and expected message.
         await expect(validateInvocation(executionContext)).rejects.toThrow(
-          'Provider authentication failed at https://localhost/api/v1/some/endpoint?limit=1: 401 Unauthorized',
-        );
-      });
-
-      test.skip('should throw if base URL is invalid', async () => {
-        recording = setupProjectRecording({
-          directory: __dirname,
-          name: 'api-token-auth-error',
-          options: {
-            recordFailedRequests: true,
-          },
-        });
-
-        const executionContext = createMockExecutionContext({
-          instanceConfig: {
-            apiToken: integrationConfig.baseUrl,
-            baseUrl: 'INVALID',
-          },
-        });
-
-        await expect(validateInvocation(executionContext)).rejects.toThrow(
-          'Provider authentication failed at https://localhost/api/v1/some/endpoint?limit=1: 401 Unauthorized',
+          IntegrationProviderAuthenticationError,
         );
       });
     });

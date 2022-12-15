@@ -11,7 +11,7 @@ export const instanceConfigFields: IntegrationInstanceConfigFieldMap = {
     type: 'string',
     mask: true,
   },
-  baseUrl: {
+  organization: {
     type: 'string',
   },
 };
@@ -27,9 +27,11 @@ export interface IntegrationConfig extends IntegrationInstanceConfig {
   apiToken: string;
 
   /**
-   * The provider base URL used to make requests.
+   * The organization from the provider URL used to make requests.
+   *
+   * I.E. https://testorg.polymerhq.io would result in an organization value of testorg
    */
-  baseUrl: string;
+  organization: string;
 }
 
 export async function validateInvocation(
@@ -38,9 +40,9 @@ export async function validateInvocation(
   const { config } = context.instance;
   const { logger } = context;
 
-  if (!config.apiToken || !config.baseUrl) {
+  if (!config.apiToken || !config.organization) {
     throw new IntegrationValidationError(
-      'Config requires all of {apiToken, baseUrl}',
+      'Config requires all of {apiToken, organization}',
     );
   }
 

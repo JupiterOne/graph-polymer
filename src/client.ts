@@ -1,5 +1,5 @@
 import fetch from 'node-fetch';
-import { retry } from '@lifeomic/attempt'; //todo add back in sleep?
+import { retry, sleep } from '@lifeomic/attempt'; //todo add back in sleep?
 
 import {
   IntegrationLogger,
@@ -12,6 +12,10 @@ import { IntegrationConfig } from './config';
 import { PolymerItem, PolymerResponse } from './types';
 
 export type ResourceIteratee<T> = (each: T) => Promise<void> | void;
+
+function getUnixTimeNow() {
+  return Date.now() / 1000;
+}
 
 type AttemptOptions = {
   maxAttempts: number;
@@ -42,17 +46,24 @@ export class APIClient {
   private requestUrl: string;
   private logger: IntegrationLogger;
   private attemptOptions: AttemptOptions;
+  private retryAfter: number; // It appears that Polymer currently provides this in seconds
 
   constructor({ config, logger, attemptOptions }: PolymerClientConfig) {
     this.apiToken = config.apiToken;
-    this.requestUrl = config.baseUrl + '/api/v1/violations';
+    this.requestUrl =
+      'https://' + config.organization + '.polymerhq.io/api/v1/violations';
     this.logger = logger;
     this.attemptOptions = attemptOptions ?? DEFAULT_ATTEMPT_OPTIONS;
   }
 
   public async verifyAuthentication(): Promise<void> {
     try {
-      await fetch(this.requestUrl, { headers: { 'api-token': this.apiToken } });
+      const response = await fetch(this.requestUrl, {
+        headers: { 'api-token': this.apiToken },
+      });
+      if (!response.ok) {
+        throw new Error('Provider authentication failed');
+      }
     } catch (err) {
       throw new IntegrationProviderAuthenticationError({
         cause: err,
@@ -105,6 +116,8 @@ export class APIClient {
         headers: { 'api-token': this.apiToken },
       });
 
+      this.retryAfter = Number(response.headers.get('Retry-after'));
+
       if (response.ok) {
         return response.json();
       }
@@ -133,7 +146,39 @@ export class APIClient {
 
     return retry(requestAttempt, {
       ...this.attemptOptions,
+      handleError: async (error, attemptContext) => {
+        this.logger.debug(
+          { error, attemptContext },
+          'Error being handled in handleError.',
+        );
+
+        if (error.status === 401 || error.status === 403) {
+          attemptContext.abort();
+          return;
+        }
+        if (error.status === 429) {
+          await this.handle429Error();
+        }
+
+        this.logger.warn(
+          { attemptContext, error },
+          `Hit a possibly recoverable error when requesting data. Waiting before trying again.`,
+        );
+      },
     });
+  }
+
+  private async handle429Error() {
+    const unixTimeNow = getUnixTimeNow();
+    const timeToSleepInSeconds = this.retryAfter; // Currently in seconds, but we can inject changes here if/when that changes
+    this.logger.info(
+      {
+        unixTimeNow,
+        timeToSleepInSeconds,
+      },
+      'Encountered 429 response. Waiting to retry request.',
+    );
+    await sleep(timeToSleepInSeconds * 1000);
   }
 }
 

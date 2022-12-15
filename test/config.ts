@@ -11,11 +11,11 @@ if (process.env.LOAD_ENV) {
   });
 }
 const DEFAULT_API_TOKEN = 'dummy-api-token';
-const DEFAULT_BASE_URL = 'dummy-base-url';
+const DEFAULT_ORGANIZATION = 'singletenant';
 
 export const integrationConfig: IntegrationConfig = {
   apiToken: process.env.API_TOKEN || DEFAULT_API_TOKEN,
-  baseUrl: process.env.BASE_URL || DEFAULT_BASE_URL,
+  organization: process.env.ORGANIZATION || DEFAULT_ORGANIZATION,
 };
 
 export function buildStepTestConfigForStep(stepId: string): StepTestConfig {

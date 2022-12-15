@@ -52,8 +52,9 @@ export function createViolationEntity(violation: PolymerItem): Entity {
         _type: Entities.VIOLATION._type,
         _class: Entities.VIOLATION._class,
         _key: generateViolationKey(violation.id),
+        id: violation.id.toString(),
         name: violation.name,
-        time: parseTimePropertyValue(violation.time),
+        createdOn: parseTimePropertyValue(violation.time),
         category: 'other',
         severity: 'unknown', // TODO (adam-in-ict) If we begin getting a category and severity, update these
         numericSeverity: 0,

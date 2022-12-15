@@ -18,11 +18,7 @@ export const Entities: Record<
     _type: 'polymer_account',
     _class: ['Account'],
     schema: {
-      properties: {
-        mfaEnabled: { type: 'boolean' },
-        manager: { type: 'string' },
-      },
-      required: ['mfaEnabled', 'manager'],
+      required: [],
     },
   },
   RULE: {
