@@ -49,8 +49,7 @@ following steps will be reusable; take care to be sure they remain accurate.
 - Enter a description to help your team identify the integration.
 - Select a polling interval that is sufficient for your monitoring requirements.
   You can leave this as `DISABLED` and manually execute the integration.
-- Enter the Polymer API key generated
-  for use by JupiterOne.
+- Enter the Polymer API key generated for use by JupiterOne.
 
 4. Click **Create Configuration** after you have entered all the values.
 
@@ -97,6 +96,14 @@ The following relationships are created:
 | --------------------- | --------------------- | --------------------- |
 | `polymer_account`     | **HAS**               | `polymer_rule`        |
 | `polymer_rule`        | **IDENTIFIED**        | `polymer_violation`   |
+
+### Mapped Relationships
+
+The following mapped relationships are created:
+
+| Source Entity `_type` | Relationship `_class` | Target Entity `_type` | Direction |
+| --------------------- | --------------------- | --------------------- | --------- |
+| `Person`              | **HAS**               | `*polymer_violation*` | REVERSE   |
 
 <!--
 ********************************************************************************
