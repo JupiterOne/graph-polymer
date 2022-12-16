@@ -1,52 +1,73 @@
-import http from 'http';
+import fetch from 'node-fetch';
+import { retry, sleep } from '@lifeomic/attempt'; //todo add back in sleep?
 
-import { IntegrationProviderAuthenticationError } from '@jupiterone/integration-sdk-core';
+import {
+  IntegrationLogger,
+  IntegrationProviderAPIError,
+  IntegrationProviderAuthenticationError,
+  IntegrationProviderAuthorizationError,
+} from '@jupiterone/integration-sdk-core';
 
 import { IntegrationConfig } from './config';
-import { AcmeUser, AcmeGroup } from './types';
+import { PolymerItem, PolymerResponse } from './types';
 
 export type ResourceIteratee<T> = (each: T) => Promise<void> | void;
 
-/**
- * An APIClient maintains authentication state and provides an interface to
- * third party data APIs.
- *
- * It is recommended that integrations wrap provider data APIs to provide a
- * place to handle error responses and implement common patterns for iterating
- * resources.
- */
+function getUnixTimeNow() {
+  return Date.now() / 1000;
+}
+
+type AttemptOptions = {
+  maxAttempts: number;
+  delay: number;
+  timeout: number;
+  factor: number;
+};
+
+export const DEFAULT_ATTEMPT_OPTIONS = {
+  maxAttempts: 5,
+  delay: 30_000,
+  timeout: 180_000,
+  factor: 2,
+};
+
+export type PolymerClientConfig = {
+  readonly config: IntegrationConfig;
+  logger: IntegrationLogger;
+  attemptOptions?: AttemptOptions;
+};
+
+export type PolymerResourceIterationCallback<T> = (
+  resources: T[],
+) => boolean | void | Promise<boolean | void>;
+
 export class APIClient {
-  constructor(readonly config: IntegrationConfig) {}
+  private apiToken: string;
+  private requestUrl: string;
+  private logger: IntegrationLogger;
+  private attemptOptions: AttemptOptions;
+  private retryAfter: number; // It appears that Polymer currently provides this in seconds
+
+  constructor({ config, logger, attemptOptions }: PolymerClientConfig) {
+    this.apiToken = config.apiToken;
+    this.requestUrl =
+      'https://' + config.organization + '.polymerhq.io/api/v1/violations';
+    this.logger = logger;
+    this.attemptOptions = attemptOptions ?? DEFAULT_ATTEMPT_OPTIONS;
+  }
 
   public async verifyAuthentication(): Promise<void> {
-    // TODO make the most light-weight request possible to validate
-    // authentication works with the provided credentials, throw an err if
-    // authentication fails
-    const request = new Promise<void>((resolve, reject) => {
-      http.get(
-        {
-          hostname: 'localhost',
-          port: 443,
-          path: '/api/v1/some/endpoint?limit=1',
-          agent: false,
-          timeout: 10,
-        },
-        (res) => {
-          if (res.statusCode !== 200) {
-            reject(new Error('Provider authentication failed'));
-          } else {
-            resolve();
-          }
-        },
-      );
-    });
-
     try {
-      await request;
+      const response = await fetch(this.requestUrl, {
+        headers: { 'api-token': this.apiToken },
+      });
+      if (!response.ok) {
+        throw new Error('Provider authentication failed');
+      }
     } catch (err) {
       throw new IntegrationProviderAuthenticationError({
         cause: err,
-        endpoint: 'https://localhost/api/v1/some/endpoint?limit=1',
+        endpoint: this.requestUrl,
         status: err.status,
         statusText: err.statusText,
       });
@@ -54,71 +75,112 @@ export class APIClient {
   }
 
   /**
-   * Iterates each user resource in the provider.
+   * Iterates each violation from Polymer.
    *
    * @param iteratee receives each resource to produce entities/relationships
    */
-  public async iterateUsers(
-    iteratee: ResourceIteratee<AcmeUser>,
+  public async iterateViolations(
+    iteratee: ResourceIteratee<PolymerItem>,
   ): Promise<void> {
-    // TODO paginate an endpoint, invoke the iteratee with each record in the
-    // page
-    //
-    // The provider API will hopefully support pagination. Functions like this
-    // should maintain pagination state, and for each page, for each record in
-    // the page, invoke the `ResourceIteratee`. This will encourage a pattern
-    // where each resource is processed and dropped from memory.
+    let queryUrl: string | null = this.requestUrl;
+    do {
+      this.logger.info({ queryUrl }, 'Calling API with url');
+      const response = await this.executeAPIRequestWithRetries<PolymerResponse>(
+        queryUrl,
+      );
+      for (const violation of response.items) {
+        await iteratee(violation);
+      }
 
-    const users: AcmeUser[] = [
-      {
-        id: 'acme-user-1',
-        name: 'User One',
-      },
-      {
-        id: 'acme-user-2',
-        name: 'User Two',
-      },
-    ];
+      this.logger.info(
+        { ...response.pagination },
+        `Pagination is being set from`,
+      );
+      queryUrl = response.pagination.next_url;
 
-    for (const user of users) {
-      await iteratee(user);
-    }
+      this.logger.info(
+        { queryUrl },
+        'Continuing with query using provided next_url',
+      );
+    } while (queryUrl);
   }
 
-  /**
-   * Iterates each group resource in the provider.
-   *
-   * @param iteratee receives each resource to produce entities/relationships
-   */
-  public async iterateGroups(
-    iteratee: ResourceIteratee<AcmeGroup>,
-  ): Promise<void> {
-    // TODO paginate an endpoint, invoke the iteratee with each record in the
-    // page
-    //
-    // The provider API will hopefully support pagination. Functions like this
-    // should maintain pagination state, and for each page, for each record in
-    // the page, invoke the `ResourceIteratee`. This will encourage a pattern
-    // where each resource is processed and dropped from memory.
+  private async executeAPIRequestWithRetries<T>(queryUrl: string): Promise<T> {
+    /**
+     * This is the logic to be retried in the case of an error.
+     */
+    const requestAttempt = async () => {
+      const response = await fetch(queryUrl, {
+        method: 'GET',
+        headers: { 'api-token': this.apiToken },
+      });
 
-    const groups: AcmeGroup[] = [
-      {
-        id: 'acme-group-1',
-        name: 'Group One',
-        users: [
-          {
-            id: 'acme-user-1',
-          },
-        ],
+      this.retryAfter = Number(response.headers.get('Retry-after'));
+
+      if (response.ok) {
+        return response.json();
+      }
+
+      if (response.status === 401) {
+        throw new IntegrationProviderAuthenticationError({
+          status: response.status,
+          statusText: response.statusText,
+          endpoint: queryUrl,
+        });
+      }
+      if (response.status === 403) {
+        throw new IntegrationProviderAuthorizationError({
+          status: response.status,
+          statusText: response.statusText,
+          endpoint: queryUrl,
+        });
+      }
+
+      throw new IntegrationProviderAPIError({
+        status: response.status,
+        statusText: response.statusText,
+        endpoint: queryUrl,
+      });
+    };
+
+    return retry(requestAttempt, {
+      ...this.attemptOptions,
+      handleError: async (error, attemptContext) => {
+        this.logger.debug(
+          { error, attemptContext },
+          'Error being handled in handleError.',
+        );
+
+        if (error.status === 401 || error.status === 403) {
+          attemptContext.abort();
+          return;
+        }
+        if (error.status === 429) {
+          await this.handle429Error();
+        }
+
+        this.logger.warn(
+          { attemptContext, error },
+          `Hit a possibly recoverable error when requesting data. Waiting before trying again.`,
+        );
       },
-    ];
+    });
+  }
 
-    for (const group of groups) {
-      await iteratee(group);
-    }
+  private async handle429Error() {
+    const unixTimeNow = getUnixTimeNow();
+    const timeToSleepInSeconds = this.retryAfter; // Currently in seconds, but we can inject changes here if/when that changes
+    this.logger.info(
+      {
+        unixTimeNow,
+        timeToSleepInSeconds,
+      },
+      'Encountered 429 response. Waiting to retry request.',
+    );
+    await sleep(timeToSleepInSeconds * 1000);
   }
 }
 
-export function createAPIClient(config: IntegrationConfig): APIClient {
+export function createAPIClient(config: PolymerClientConfig): APIClient {
   return new APIClient(config);
 }
