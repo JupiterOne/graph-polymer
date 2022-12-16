@@ -42,9 +42,9 @@ export const violationsSpec: StepSpec<IntegrationConfig>[] = [
     mappedRelationships: [
       {
         _type: 'user_has_polymer_violation',
-        sourceType: 'Person',
+        sourceType: 'polymer_violation',
         _class: RelationshipClass.HAS,
-        targetType: 'polymer_violation',
+        targetType: 'Person',
         direction: RelationshipDirection.REVERSE,
       },
     ],
