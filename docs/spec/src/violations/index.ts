@@ -1,4 +1,8 @@
-import { RelationshipClass, StepSpec } from '@jupiterone/integration-sdk-core';
+import {
+  RelationshipClass,
+  RelationshipDirection,
+  StepSpec,
+} from '@jupiterone/integration-sdk-core';
 import { IntegrationConfig } from '../../../../src/config';
 
 export const violationsSpec: StepSpec<IntegrationConfig>[] = [
@@ -33,6 +37,15 @@ export const violationsSpec: StepSpec<IntegrationConfig>[] = [
         sourceType: 'polymer_rule',
         _class: RelationshipClass.IDENTIFIED,
         targetType: 'polymer_violation',
+      },
+    ],
+    mappedRelationships: [
+      {
+        _type: 'user_has_polymer_violation',
+        sourceType: 'polymer_violation',
+        _class: RelationshipClass.HAS,
+        targetType: 'Person',
+        direction: RelationshipDirection.REVERSE,
       },
     ],
     dependsOn: ['fetch-account'],

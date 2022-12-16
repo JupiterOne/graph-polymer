@@ -26,3 +26,9 @@ and this project adheres to
   | --------------------- | --------------------- | --------------------- |
   | `polymer_account`     | **HAS**               | `polymer_rule`        |
   | `polymer_rule`        | **IDENTIFIED**        | `polymer_violation`   |
+
+  The following mapped relationships are created:
+
+  | Source Entity `_type` | Relationship `_class` | Target Entity `_type` | Direction |
+  | --------------------- | --------------------- | --------------------- | --------- |
+  | `polymer_violation`   | **HAS**               | `*Person*`            | REVERSE   |

@@ -7,13 +7,19 @@ import {
 import { createAPIClient } from '../../client';
 import { IntegrationConfig } from '../../config';
 import { ACCOUNT_ENTITY_KEY } from '../account';
-import { Entities, Steps, Relationships } from '../constants';
+import {
+  Entities,
+  Steps,
+  Relationships,
+  MappedRelationships,
+} from '../constants';
 import {
   createViolationEntity,
   generateRuleKey,
   createRuleEntity,
   createAccountRuleRelationship,
   createRuleViolationRelationship,
+  createMappedUserRelationship,
 } from './converter';
 
 export async function fetchViolations({
@@ -29,6 +35,8 @@ export async function fetchViolations({
     const violationEntity = await jobState.addEntity(
       createViolationEntity(violation),
     );
+
+    await jobState.addRelationship(createMappedUserRelationship(violation));
 
     for (const rule of violation.rules) {
       let ruleEntity = await jobState.findEntity(generateRuleKey(rule.id));
@@ -58,6 +66,7 @@ export const violationSteps: IntegrationStep<IntegrationConfig>[] = [
       Relationships.ACCOUNT_HAS_RULE,
       Relationships.RULE_IDENTIFIED_VIOLATION,
     ],
+    mappedRelationships: [MappedRelationships.USER_HAS_VIOLATION],
     dependsOn: [Steps.ACCOUNT],
     executionHandler: fetchViolations,
   },
