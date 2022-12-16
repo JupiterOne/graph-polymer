@@ -79,9 +79,9 @@ export const MappedRelationships: Record<
 > = {
   USER_HAS_VIOLATION: {
     _type: 'user_has_polymer_violation',
-    sourceType: 'Person',
+    sourceType: Entities.VIOLATION._type,
     _class: RelationshipClass.HAS,
-    targetType: Entities.VIOLATION._type,
+    targetType: 'Person',
     direction: RelationshipDirection.REVERSE,
   },
 };
