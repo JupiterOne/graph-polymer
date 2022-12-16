@@ -1,6 +1,8 @@
 import {
   RelationshipClass,
+  RelationshipDirection,
   StepEntityMetadata,
+  StepMappedRelationshipMetadata,
   StepRelationshipMetadata,
 } from '@jupiterone/integration-sdk-core';
 
@@ -68,5 +70,18 @@ export const Relationships: Record<
     sourceType: Entities.RULE._type,
     _class: RelationshipClass.IDENTIFIED,
     targetType: Entities.VIOLATION._type,
+  },
+};
+
+export const MappedRelationships: Record<
+  'USER_HAS_VIOLATION',
+  StepMappedRelationshipMetadata
+> = {
+  USER_HAS_VIOLATION: {
+    _type: 'user_has_polymer_violation',
+    sourceType: 'Person',
+    _class: RelationshipClass.HAS,
+    targetType: Entities.VIOLATION._type,
+    direction: RelationshipDirection.REVERSE,
   },
 };

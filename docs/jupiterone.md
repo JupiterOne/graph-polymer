@@ -98,6 +98,14 @@ The following relationships are created:
 | `polymer_account`     | **HAS**               | `polymer_rule`        |
 | `polymer_rule`        | **IDENTIFIED**        | `polymer_violation`   |
 
+### Mapped Relationships
+
+The following mapped relationships are created:
+
+| Source Entity `_type` | Relationship `_class` | Target Entity `_type` | Direction |
+| --------------------- | --------------------- | --------------------- | --------- |
+| `Person`              | **HAS**               | `*polymer_violation*` | REVERSE   |
+
 <!--
 ********************************************************************************
 END OF GENERATED DOCUMENTATION AFTER BELOW MARKER

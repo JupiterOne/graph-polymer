@@ -5,6 +5,9 @@ import {
   parseTimePropertyValue,
   RelationshipClass,
   Relationship,
+  MappedRelationship,
+  createMappedRelationship,
+  RelationshipDirection,
 } from '@jupiterone/integration-sdk-core';
 
 import { Entities } from '../constants';
@@ -88,6 +91,25 @@ export function createRuleViolationRelationship(
     to: violation,
     properties: {
       count: count,
+    },
+  });
+}
+
+export function createMappedUserRelationship(
+  violation: PolymerItem,
+): MappedRelationship {
+  return createMappedRelationship({
+    _class: RelationshipClass.HAS,
+    _type: 'user_has_polymer_violation',
+    _mapping: {
+      sourceEntityKey: generateViolationKey(violation.id),
+      relationshipDirection: RelationshipDirection.REVERSE,
+      skipTargetCreation: true,
+      targetFilterKeys: [['_class', 'email']],
+      targetEntity: {
+        _class: 'Person',
+        email: violation.user.email,
+      },
     },
   });
 }
