@@ -1,7 +1,7 @@
 {
-  "name": "@jupiterone/integration-template",
+  "name": "@jupiterone/graph-polymer",
   "version": "0.0.0",
-  "description": "A JupiterOne Integration",
+  "description": "A JupiterOne Integration for Polymer.",
   "license": "MPL-2.0",
   "main": "src/index.js",
   "types": "src/index.d.ts",
