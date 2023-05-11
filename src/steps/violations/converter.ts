@@ -100,15 +100,15 @@ export function createMappedUserRelationship(
 ): MappedRelationship {
   return createMappedRelationship({
     _class: RelationshipClass.HAS,
-    _type: 'user_has_polymer_violation',
+    _type: 'polymer_violation_has_user',
     _mapping: {
       sourceEntityKey: generateViolationKey(violation.id),
-      relationshipDirection: RelationshipDirection.REVERSE,
-      skipTargetCreation: true,
-      targetFilterKeys: [['_class', 'email']],
+      relationshipDirection: RelationshipDirection.FORWARD,
+      skipTargetCreation: false,
+      targetFilterKeys: [['_class', 'external_id']],
       targetEntity: {
-        _class: 'Person',
-        email: violation.user.email,
+        _class: 'User',
+        userId: violation.user.external_id,
       },
     },
   });
