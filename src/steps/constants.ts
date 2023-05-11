@@ -74,14 +74,14 @@ export const Relationships: Record<
 };
 
 export const MappedRelationships: Record<
-  'USER_HAS_VIOLATION',
+  'VIOLATION_HAS_USER',
   StepMappedRelationshipMetadata
 > = {
-  USER_HAS_VIOLATION: {
-    _type: 'user_has_polymer_violation',
+  VIOLATION_HAS_USER: {
+    _type: 'polymer_violation_has_user',
     sourceType: Entities.VIOLATION._type,
     _class: RelationshipClass.HAS,
-    targetType: 'Person',
-    direction: RelationshipDirection.REVERSE,
+    targetType: 'User',
+    direction: RelationshipDirection.FORWARD,
   },
 };

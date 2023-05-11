@@ -66,7 +66,7 @@ export const violationSteps: IntegrationStep<IntegrationConfig>[] = [
       Relationships.ACCOUNT_HAS_RULE,
       Relationships.RULE_IDENTIFIED_VIOLATION,
     ],
-    mappedRelationships: [MappedRelationships.USER_HAS_VIOLATION],
+    mappedRelationships: [MappedRelationships.VIOLATION_HAS_USER],
     dependsOn: [Steps.ACCOUNT],
     executionHandler: fetchViolations,
   },

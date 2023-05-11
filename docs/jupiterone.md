@@ -103,7 +103,7 @@ The following mapped relationships are created:
 
 | Source Entity `_type` | Relationship `_class` | Target Entity `_type` | Direction |
 | --------------------- | --------------------- | --------------------- | --------- |
-| `polymer_violation`   | **HAS**               | `*Person*`            | REVERSE   |
+| `polymer_violation`   | **HAS**               | `*User*`              | FORWARD   |
 
 <!--
 ********************************************************************************
