@@ -103,10 +103,10 @@ The following mapped relationships are created:
 
 | Source Entity `_type` | Relationship `_class` | Target Entity `_type` | Direction |
 | --------------------- | --------------------- | --------------------- | --------- |
-| `polymer_violation`   | **HAS**               | `*User*`              | REVERSE   |
-| `polymer_violation`   | **HAS**               | `*User*`              | REVERSE   |
-| `polymer_violation`   | **HAS**               | `*Channel*`           | REVERSE   |
-| `polymer_violation`   | **HAS**               | `*User*`              | REVERSE   |
+| `polymer_violation`   | **HAS**               | `*github_user*`       | REVERSE   |
+| `polymer_violation`   | **HAS**               | `*google_user*`       | REVERSE   |
+| `polymer_violation`   | **HAS**               | `*slack_channel*`     | REVERSE   |
+| `polymer_violation`   | **HAS**               | `*slack_user*`        | REVERSE   |
 
 <!--
 ********************************************************************************

@@ -107,7 +107,7 @@ export function createMappedUserRelationship(
           sourceEntityKey: generateViolationKey(violation.id),
           relationshipDirection: RelationshipDirection.REVERSE,
           skipTargetCreation: true,
-          targetFilterKeys: [['_class', 'id']],
+          targetFilterKeys: [['_type', 'id']],
           targetEntity: {
             _type: 'github_user',
             id: violation.user.external_id,
@@ -122,7 +122,7 @@ export function createMappedUserRelationship(
           sourceEntityKey: generateViolationKey(violation.id),
           relationshipDirection: RelationshipDirection.REVERSE,
           skipTargetCreation: true,
-          targetFilterKeys: [['_class', 'id']],
+          targetFilterKeys: [['_type', 'id']],
           targetEntity: {
             _type: 'google_user',
             id: violation.user.external_id,
@@ -138,7 +138,7 @@ export function createMappedUserRelationship(
             sourceEntityKey: generateViolationKey(violation.id),
             relationshipDirection: RelationshipDirection.REVERSE,
             skipTargetCreation: true,
-            targetFilterKeys: [['_class', 'id']],
+            targetFilterKeys: [['_type', 'id']],
             targetEntity: {
               _type: 'slack_channel',
               id: violation.channel.external_id,
@@ -153,7 +153,7 @@ export function createMappedUserRelationship(
           sourceEntityKey: generateViolationKey(violation.id),
           relationshipDirection: RelationshipDirection.REVERSE,
           skipTargetCreation: true,
-          targetFilterKeys: [['_class', 'id']],
+          targetFilterKeys: [['_type', 'id']],
           targetEntity: {
             _type: 'slack_user',
             userId: violation.user.external_id,
