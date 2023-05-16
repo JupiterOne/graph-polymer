@@ -107,6 +107,7 @@ The following mapped relationships are created:
 | `polymer_violation`   | **HAS**               | `*google_user*`       | REVERSE   |
 | `polymer_violation`   | **HAS**               | `*slack_channel*`     | REVERSE   |
 | `polymer_violation`   | **HAS**               | `*slack_user*`        | REVERSE   |
+| `polymer_violation`   | **HAS**               | `*Person*`            | REVERSE   |
 
 <!--
 ********************************************************************************

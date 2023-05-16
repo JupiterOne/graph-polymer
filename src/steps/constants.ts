@@ -74,12 +74,20 @@ export const Relationships: Record<
 };
 
 export const MappedRelationships: Record<
+  | 'USER_HAS_VIOLATION'
   | 'GITHUB_USER_HAS_VIOLATION'
   | 'GOOGLE_USER_HAS_VIOLATION'
   | 'SLACK_USER_HAS_VIOLATION'
   | 'SLACK_CHANNEL_HAS_VIOLATION',
   StepMappedRelationshipMetadata
 > = {
+  USER_HAS_VIOLATION: {
+    _type: 'user_has_polymer_violation',
+    sourceType: Entities.VIOLATION._type,
+    _class: RelationshipClass.HAS,
+    targetType: 'Person',
+    direction: RelationshipDirection.REVERSE,
+  },
   GITHUB_USER_HAS_VIOLATION: {
     _type: 'github_user_has_polymer_violation',
     sourceType: Entities.VIOLATION._type,
