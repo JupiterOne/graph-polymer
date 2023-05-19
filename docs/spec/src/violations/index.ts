@@ -41,13 +41,6 @@ export const violationsSpec: StepSpec<IntegrationConfig>[] = [
     ],
     mappedRelationships: [
       {
-        _type: 'user_has_polymer_violation',
-        sourceType: 'polymer_violation',
-        _class: RelationshipClass.HAS,
-        targetType: 'Person',
-        direction: RelationshipDirection.REVERSE,
-      },
-      {
         _type: 'github_user_has_polymer_violation',
         sourceType: 'polymer_violation',
         _class: RelationshipClass.HAS,

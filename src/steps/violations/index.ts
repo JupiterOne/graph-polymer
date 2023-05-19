@@ -37,7 +37,7 @@ export async function fetchViolations({
     );
 
     const mappedRelationship = createMappedUserRelationship(violation);
-    if (mappedRelationship) await jobState.addRelationship(mappedRelationship);
+    if (mappedRelationship) await jobState.addRelationships(mappedRelationship);
 
     for (const rule of violation.rules) {
       let ruleEntity = await jobState.findEntity(generateRuleKey(rule.id));
@@ -67,7 +67,12 @@ export const violationSteps: IntegrationStep<IntegrationConfig>[] = [
       Relationships.ACCOUNT_HAS_RULE,
       Relationships.RULE_IDENTIFIED_VIOLATION,
     ],
-    mappedRelationships: Object.values(MappedRelationships),
+    mappedRelationships: [
+      MappedRelationships.GITHUB_USER_HAS_VIOLATION,
+      MappedRelationships.GOOGLE_USER_HAS_VIOLATION,
+      MappedRelationships.SLACK_CHANNEL_HAS_VIOLATION,
+      MappedRelationships.SLACK_USER_HAS_VIOLATION,
+    ],
     dependsOn: [Steps.ACCOUNT],
     executionHandler: fetchViolations,
   },
