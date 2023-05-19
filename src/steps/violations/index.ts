@@ -70,8 +70,8 @@ export const violationSteps: IntegrationStep<IntegrationConfig>[] = [
     mappedRelationships: [
       MappedRelationships.GITHUB_USER_HAS_VIOLATION,
       MappedRelationships.GOOGLE_USER_HAS_VIOLATION,
-      MappedRelationships.SLACK_CHANNEL_HAS_VIOLATION,
       MappedRelationships.SLACK_USER_HAS_VIOLATION,
+      MappedRelationships.SLACK_CHANNEL_HAS_VIOLATION,
     ],
     dependsOn: [Steps.ACCOUNT],
     executionHandler: fetchViolations,
