@@ -97,19 +97,74 @@ export function createRuleViolationRelationship(
 
 export function createMappedUserRelationship(
   violation: PolymerItem,
-): MappedRelationship {
-  return createMappedRelationship({
-    _class: RelationshipClass.HAS,
-    _type: 'user_has_polymer_violation',
-    _mapping: {
-      sourceEntityKey: generateViolationKey(violation.id),
-      relationshipDirection: RelationshipDirection.REVERSE,
-      skipTargetCreation: true,
-      targetFilterKeys: [['_class', 'email']],
-      targetEntity: {
-        _class: 'Person',
-        email: violation.user.email,
-      },
-    },
-  });
+): MappedRelationship[] | undefined {
+  switch (violation.team.platform_slug) {
+    case 'github':
+      return [
+        createMappedRelationship({
+          _class: RelationshipClass.HAS,
+          _type: 'github_user_has_polymer_violation',
+          _mapping: {
+            sourceEntityKey: generateViolationKey(violation.id),
+            relationshipDirection: RelationshipDirection.REVERSE,
+            skipTargetCreation: true,
+            targetFilterKeys: [['_type', 'id']],
+            targetEntity: {
+              _type: 'github_user',
+              id: violation.user.external_id,
+            },
+          },
+        }),
+      ];
+    case 'googledriveeg':
+      return [
+        createMappedRelationship({
+          _class: RelationshipClass.HAS,
+          _type: 'google_user_has_polymer_violation',
+          _mapping: {
+            sourceEntityKey: generateViolationKey(violation.id),
+            relationshipDirection: RelationshipDirection.REVERSE,
+            skipTargetCreation: true,
+            targetFilterKeys: [['_type', 'id']],
+            targetEntity: {
+              _type: 'google_user',
+              id: violation.user.external_id,
+            },
+          },
+        }),
+      ];
+    case 'slack':
+      return [
+        createMappedRelationship({
+          _class: RelationshipClass.HAS,
+          _type: 'slack_channel_has_polymer_violation',
+          _mapping: {
+            sourceEntityKey: generateViolationKey(violation.id),
+            relationshipDirection: RelationshipDirection.REVERSE,
+            skipTargetCreation: true,
+            targetFilterKeys: [['_type', 'id']],
+            targetEntity: {
+              _type: 'slack_channel',
+              id: violation.channel.external_id,
+            },
+          },
+        }),
+        createMappedRelationship({
+          _class: RelationshipClass.HAS,
+          _type: 'slack_user_has_polymer_violation',
+          _mapping: {
+            sourceEntityKey: generateViolationKey(violation.id),
+            relationshipDirection: RelationshipDirection.REVERSE,
+            skipTargetCreation: true,
+            targetFilterKeys: [['_type', 'login']],
+            targetEntity: {
+              _type: 'slack_user',
+              login: violation.user.external_id,
+            },
+          },
+        }),
+      ];
+    default:
+      return undefined;
+  }
 }

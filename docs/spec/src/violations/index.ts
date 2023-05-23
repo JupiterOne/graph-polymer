@@ -41,10 +41,31 @@ export const violationsSpec: StepSpec<IntegrationConfig>[] = [
     ],
     mappedRelationships: [
       {
-        _type: 'user_has_polymer_violation',
+        _type: 'github_user_has_polymer_violation',
         sourceType: 'polymer_violation',
         _class: RelationshipClass.HAS,
-        targetType: 'Person',
+        targetType: 'github_user',
+        direction: RelationshipDirection.REVERSE,
+      },
+      {
+        _type: 'google_user_has_polymer_violation',
+        sourceType: 'polymer_violation',
+        _class: RelationshipClass.HAS,
+        targetType: 'google_user',
+        direction: RelationshipDirection.REVERSE,
+      },
+      {
+        _type: 'slack_user_has_polymer_violation',
+        sourceType: 'polymer_violation',
+        _class: RelationshipClass.HAS,
+        targetType: 'slack_user',
+        direction: RelationshipDirection.REVERSE,
+      },
+      {
+        _type: 'slack_channel_has_polymer_violation',
+        sourceType: 'polymer_violation',
+        _class: RelationshipClass.HAS,
+        targetType: 'slack_channel',
         direction: RelationshipDirection.REVERSE,
       },
     ],

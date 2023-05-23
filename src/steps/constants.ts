@@ -74,14 +74,38 @@ export const Relationships: Record<
 };
 
 export const MappedRelationships: Record<
-  'USER_HAS_VIOLATION',
+  | 'GITHUB_USER_HAS_VIOLATION'
+  | 'GOOGLE_USER_HAS_VIOLATION'
+  | 'SLACK_USER_HAS_VIOLATION'
+  | 'SLACK_CHANNEL_HAS_VIOLATION',
   StepMappedRelationshipMetadata
 > = {
-  USER_HAS_VIOLATION: {
-    _type: 'user_has_polymer_violation',
+  GITHUB_USER_HAS_VIOLATION: {
+    _type: 'github_user_has_polymer_violation',
     sourceType: Entities.VIOLATION._type,
     _class: RelationshipClass.HAS,
-    targetType: 'Person',
+    targetType: 'github_user',
+    direction: RelationshipDirection.REVERSE,
+  },
+  GOOGLE_USER_HAS_VIOLATION: {
+    _type: 'google_user_has_polymer_violation',
+    sourceType: Entities.VIOLATION._type,
+    _class: RelationshipClass.HAS,
+    targetType: 'google_user',
+    direction: RelationshipDirection.REVERSE,
+  },
+  SLACK_USER_HAS_VIOLATION: {
+    _type: 'slack_user_has_polymer_violation',
+    sourceType: Entities.VIOLATION._type,
+    _class: RelationshipClass.HAS,
+    targetType: 'slack_user',
+    direction: RelationshipDirection.REVERSE,
+  },
+  SLACK_CHANNEL_HAS_VIOLATION: {
+    _type: 'slack_channel_has_polymer_violation',
+    sourceType: Entities.VIOLATION._type,
+    _class: RelationshipClass.HAS,
+    targetType: 'slack_channel',
     direction: RelationshipDirection.REVERSE,
   },
 };
