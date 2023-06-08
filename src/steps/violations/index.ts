@@ -39,21 +39,23 @@ export async function fetchViolations({
     const mappedRelationship = createMappedUserRelationship(violation);
     if (mappedRelationship) await jobState.addRelationships(mappedRelationship);
 
-    for (const rule of violation.rules) {
-      let ruleEntity = await jobState.findEntity(generateRuleKey(rule.id));
-      if (!ruleEntity) {
-        ruleEntity = await jobState.addEntity(createRuleEntity(rule));
+    if (violation.rules) {
+      for (const rule of violation.rules) {
+        let ruleEntity = await jobState.findEntity(generateRuleKey(rule.id));
+        if (!ruleEntity) {
+          ruleEntity = await jobState.addEntity(createRuleEntity(rule));
+          await jobState.addRelationship(
+            createAccountRuleRelationship(accountEntity, ruleEntity),
+          );
+        }
         await jobState.addRelationship(
-          createAccountRuleRelationship(accountEntity, ruleEntity),
+          createRuleViolationRelationship(
+            ruleEntity,
+            violationEntity,
+            Number(rule.count),
+          ),
         );
       }
-      await jobState.addRelationship(
-        createRuleViolationRelationship(
-          ruleEntity,
-          violationEntity,
-          Number(rule.count),
-        ),
-      );
     }
   });
 }

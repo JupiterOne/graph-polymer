@@ -84,24 +84,13 @@ export class APIClient {
   ): Promise<void> {
     let queryUrl: string | null = this.requestUrl;
     do {
-      this.logger.info({ queryUrl }, 'Calling API with url');
       const response = await this.executeAPIRequestWithRetries<PolymerResponse>(
         queryUrl,
       );
       for (const violation of response.items) {
         await iteratee(violation);
       }
-
-      this.logger.info(
-        { ...response.pagination },
-        `Pagination is being set from`,
-      );
       queryUrl = response.pagination.next_url;
-
-      this.logger.info(
-        { queryUrl },
-        'Continuing with query using provided next_url',
-      );
     } while (queryUrl);
   }
 
