@@ -8,7 +8,27 @@ and this project adheres to
 
 ## [Unreleased]
 
-### Changed
+## [1.2.0] - 2023-06-08
+
+### Fixed
+
+- Instances where violation rules are empty are now properly handled.
+
+## [1.1.0] - 2023-05-22
+
+### Added
+
+- Added additional mapped relationships. | Source Entity `_type` | Relationship
+  `_class` | Target Entity `_type` | Direction | | --------------------- |
+  --------------------- | --------------------- | --------- | |
+  `polymer_violation` | **HAS** | `*github_user*` | REVERSE | |
+  `polymer_violation` | **HAS** | `*google_user*` | REVERSE | |
+  `polymer_violation` | **HAS** | `*slack_channel*` | REVERSE | |
+  `polymer_violation` | **HAS** | `*slack_user*` | REVERSE |
+
+## [1.0.0] - 2022-12-20
+
+### Added
 
 - Added initial integration with Polymer:
 
