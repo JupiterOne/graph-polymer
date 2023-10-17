@@ -2,6 +2,10 @@
   "name": "@jupiterone/graph-polymer",
   "version": "1.2.0",
   "description": "A JupiterOne Integration for Polymer.",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/JupiterOne/graph-polymer"
+  },
   "license": "MPL-2.0",
   "main": "src/index.js",
   "types": "src/index.d.ts",
